@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إضافة منتج — ملاحظات التقنية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF1EF; --paper-2:#E4E8E5; --ink:#12181B; --ink-soft:#4B5459;
+    --line:#C7CFC9; --signal:#D9540A; --signal-soft:#F3D9C6; --moss:#3F6A4C; --moss-soft:#DCE7DE;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans Arabic',sans-serif;line-height:1.8;}
+  .wrap{max-width:640px;margin:0 auto;padding:48px 32px;}
+  h1{font-size:24px;margin:0 0 6px;}
+  p.sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 32px;}
+  .field{margin-bottom:18px;}
+  label{display:block;font-size:13.5px;color:var(--ink-soft);margin-bottom:6px;}
+  input, textarea, select{
+    width:100%;padding:11px 12px;border:1px solid var(--line);background:#fff;
+    font-family:'IBM Plex Sans Arabic',sans-serif;font-size:14.5px;color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{outline:none;border-color:var(--ink);}
+  textarea{resize:vertical;min-height:70px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:13px 22px;font-size:14.5px;
+    font-weight:500;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);
+    cursor:pointer;
+  }
+  .btn:hover{background:#152F49;border-color:#152F49;}
+  .output{
+    margin-top:28px;border:1px solid var(--ink);background:var(--paper-2);padding:18px;
+    display:none;
+  }
+  .output.show{display:block;}
+  .output-label{font-size:12px;color:var(--ink-soft);margin-bottom:10px;}
+  pre{
+    background:#fff;border:1px solid var(--line);padding:14px;font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;direction:ltr;text-align:left;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+    margin:0 0 14px;
+  }
+  .instructions{
+    background:var(--signal-soft);border:1px solid var(--signal);color:#5C2508;padding:14px 16px;
+    font-size:13px;margin-bottom:20px;
+  }
+  .copy-btn{
+    border:1px solid var(--ink);background:transparent;padding:8px 16px;font-size:13px;cursor:pointer;
+    font-family:'IBM Plex Sans Arabic',sans-serif;
+  }
+  .copy-btn:hover{background:#fff;}
+  .back{display:inline-block;margin-bottom:24px;font-size:13.5px;color:var(--ink-soft);text-decoration:none;}
+  .back:hover{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index-ar.html" class="back">← الرجوع للموقع</a>
+  <h1>إضافة منتج جديد</h1>
+  <p class="sub">املأ الحقول التالية، ثم انسخ الكود الناتج وألصقه في ملف products.js قبل القوس الأخير ]</p>
+
+  <div class="field">
+    <label>التصنيف (بالإنجليزي، مثل HEADPHONES)</label>
+    <input id="category" placeholder="HEADPHONES">
+  </div>
+  <div class="field">
+    <label>عنوان المراجعة</label>
+    <input id="title" placeholder="سماعة رأس ...">
+  </div>
+  <div class="field">
+    <label>الحكم النهائي</label>
+    <select id="verdict">
+      <option>نوصي به</option>
+      <option>نوصي بها</option>
+      <option>جيد بشروط</option>
+      <option>لا ننصح به</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>وصف قصير (جملة أو جملتين)</label>
+    <textarea id="desc" placeholder="بطارية تدوم ...، وتصميم خفيف ..."></textarea>
+  </div>
+  <div class="field">
+    <label>السعر</label>
+    <input id="price" placeholder="٦٧٩ ر.س">
+  </div>
+  <div class="field">
+    <label>رابط أمازون التابع</label>
+    <input id="link" placeholder="https://amazon.sa/dp/xxxx?tag=yourtag-20">
+  </div>
+
+  <button class="btn" onclick="generateCode()">أنشئ الكود</button>
+
+  <div class="output" id="output">
+    <div class="instructions">
+      انسخ الكود أدناه، افتح ملف <strong>products.js</strong> بمحرر نصوص، وألصقه قبل القوس الأخير <span style="direction:ltr;display:inline-block;">]</span> مباشرة (لا تنسَ فاصلة بعد المنتج السابق). ثم احفظ الملف وأعد رفعه للاستضافة.
+    </div>
+    <div class="output-label">الكود الجاهز للّصق:</div>
+    <pre id="code-output"></pre>
+    <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
+  </div>
+</div>
+
+<script>
+function esc(str){
+  return str.replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+}
+function generateCode(){
+  const category = esc(document.getElementById('category').value || 'GENERAL');
+  const title = esc(document.getElementById('title').value || 'بدون عنوان');
+  const verdict = esc(document.getElementById('verdict').value);
+  const desc = esc(document.getElementById('desc').value);
+  const price = esc(document.getElementById('price').value);
+  const link = esc(document.getElementById('link').value || '#');
+
+  const code =
+',\n  {\n' +
+'    category: "' + category + '",\n' +
+'    title: "' + title + '",\n' +
+'    verdict: "' + verdict + '",\n' +
+'    desc: "' + desc + '",\n' +
+'    price: "' + price + '",\n' +
+'    link: "' + link + '"\n' +
+'  }';
+
+  document.getElementById('code-output').textContent = code;
+  document.getElementById('output').classList.add('show');
+}
+function copyCode(){
+  const text = document.getElementById('code-output').textContent;
+  navigator.clipboard.writeText(text);
+  const btn = document.querySelector('.copy-btn');
+  const original = btn.textContent;
+  btn.textContent = 'تم النسخ ✓';
+  setTimeout(function(){ btn.textContent = original; }, 1500);
+}
+</script>
+</body>
+</html>
